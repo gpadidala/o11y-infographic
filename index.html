@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When to NOT Use an AI Agent in Observability — Advanced Edition</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#060b18 0%,#0d1a3a 30%,#132044 60%,#0d1a3a 100%);color:#e0e4ec;min-height:100vh;padding:0}
+.page{max-width:960px;margin:0 auto;padding:50px 24px 60px}
+
+/* ── HERO ── */
+.hero{text-align:center;margin-bottom:50px;position:relative}
+.hero::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(242,200,17,0.08) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+.badge{display:inline-block;background:linear-gradient(90deg,#f2c811,#e8a800);color:#0a1628;font-size:10px;font-weight:800;letter-spacing:3px;padding:6px 18px;border-radius:20px;margin-bottom:16px;text-transform:uppercase}
+h1{font-size:44px;line-height:1.1;color:#fff;margin-bottom:8px}
+h1 b{color:#f2c811;font-size:50px;display:inline}
+.sub{font-size:19px;color:#8090b0;font-style:italic;max-width:700px;margin:0 auto 20px}
+.author{font-size:12px;color:#4a5568;letter-spacing:1px}
+
+/* ── SECTION DIVIDER ── */
+.divider{text-align:center;margin:48px 0 22px;position:relative}
+.divider::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(242,200,17,0.3),transparent)}
+.divider span{background:linear-gradient(135deg,#0d1a3a,#132044);padding:0 20px;position:relative;font-size:13px;font-weight:800;letter-spacing:3px;color:#f2c811;text-transform:uppercase}
+
+/* ── MATRIX TABLE ── */
+.matrix{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);margin-bottom:6px}
+.matrix thead th{background:linear-gradient(135deg,#1a2d5e,#243b72);color:#f2c811;padding:16px 14px;font-size:13px;font-weight:700;border-bottom:2px solid #f2c811}
+.matrix thead th:first-child{text-align:left;width:180px}
+.matrix td{padding:13px 12px;text-align:center;font-size:12.5px;background:rgba(10,18,40,0.75);border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.2s}
+.matrix td:first-child{text-align:left;font-weight:600;color:#fff}
+.matrix tr:hover td{background:rgba(242,200,17,0.04)}
+.matrix td small{display:block;color:#5a6a8a;font-size:10.5px;margin-top:2px;font-style:italic}
+.pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;margin-top:3px}
+.pill-green{background:rgba(34,197,94,0.15);color:#22c55e}
+.pill-blue{background:rgba(59,130,246,0.15);color:#60a5fa}
+.pill-amber{background:rgba(245,158,11,0.15);color:#f59e0b}
+.row-icon{width:26px;height:26px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;background:#f2c811;color:#0a1628;margin-right:8px;vertical-align:middle;flex-shrink:0}
+
+/* ── SIGNAL FLOW ── */
+.signal-flow{display:flex;align-items:center;justify-content:center;gap:0;margin:30px 0 10px;flex-wrap:wrap}
+.signal-node{background:rgba(10,18,40,0.8);border:2px solid #3b82f6;border-radius:10px;padding:12px 18px;text-align:center;min-width:110px}
+.signal-node h4{font-size:11px;color:#60a5fa;margin-bottom:2px;font-weight:700}
+.signal-node p{font-size:10px;color:#8090b0}
+.signal-arrow{color:#f2c811;font-size:22px;padding:0 4px;flex-shrink:0}
+.signal-node.active{border-color:#f2c811;box-shadow:0 0 16px rgba(242,200,17,0.15)}
+.signal-node.active h4{color:#f2c811}
+
+/* ── USE CASE CARDS ── */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:6px}
+.card{border-radius:12px;padding:20px 16px;border:2px solid;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 0 0 60px;opacity:0.06}
+.card h3{font-size:14px;margin-bottom:10px;font-weight:700;display:flex;align-items:center;gap:6px}
+.card ul{list-style:none;padding:0}
+.card li{font-size:11.5px;padding:4px 0;display:flex;align-items:flex-start;gap:6px;line-height:1.4;color:#b0b8c8}
+.card li::before{content:"→";color:inherit;font-weight:700;flex-shrink:0}
+.card-g{background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.4)}
+.card-g h3{color:#22c55e}
+.card-g li::before{color:#22c55e}
+.card-g::before{background:#22c55e}
+.card-b{background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.4)}
+.card-b h3{color:#60a5fa}
+.card-b li::before{color:#60a5fa}
+.card-b::before{background:#3b82f6}
+.card-r{background:rgba(239,68,68,0.04);border-color:rgba(239,68,68,0.4)}
+.card-r h3{color:#f87171}
+.card-r li::before{color:#f87171}
+.card-r::before{background:#ef4444}
+.card .pct{position:absolute;top:12px;right:14px;font-size:24px;font-weight:800;opacity:0.12}
+
+/* ── TEST QUESTIONS ── */
+.tests{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.tq{display:flex;align-items:center;gap:14px;background:rgba(10,18,40,0.6);border-radius:10px;padding:14px 18px;border:1px solid rgba(255,255,255,0.06);transition:border-color 0.2s}
+.tq:hover{border-color:rgba(242,200,17,0.2)}
+.tq-n{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f2c811,#e8a800);color:#0a1628;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.tq-q{flex:1;font-size:13px;color:#b0b8c8}
+.tq-a{font-size:12.5px;font-weight:700;color:#f2c811;text-align:right;min-width:180px}
+
+/* ── SPECTRUM BAR ── */
+.spectrum{margin:30px 0;background:rgba(10,18,40,0.6);border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.06)}
+.spectrum h3{text-align:center;font-size:13px;color:#f2c811;margin-bottom:14px;letter-spacing:2px;font-weight:700}
+.sbar{display:flex;height:36px;border-radius:8px;overflow:hidden;margin-bottom:10px}
+.sbar div{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0a1628;transition:flex 0.3s}
+.sbar .s-api{flex:6;background:linear-gradient(90deg,#22c55e,#16a34a)}
+.sbar .s-wf{flex:3;background:linear-gradient(90deg,#3b82f6,#2563eb)}
+.sbar .s-ag{flex:1;background:linear-gradient(90deg,#f59e0b,#d97706)}
+.slegend{display:flex;justify-content:space-between;font-size:11px;color:#6b7a94}
+.slegend span{display:flex;align-items:center;gap:4px}
+.slegend .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+/* ── COST COMPARISON ── */
+.costs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:6px}
+.cost{border-radius:12px;padding:18px;text-align:center;border:2px solid;background:rgba(10,18,40,0.5)}
+.cost h4{font-size:14px;margin-bottom:14px;font-weight:700}
+.cost-row{margin:8px 0;font-size:11px;color:#8090b0}
+.cost-row b{color:#e0e4ec;display:block;font-size:12px;margin-bottom:2px}
+.meter{display:flex;gap:3px;justify-content:center;margin:4px 0 10px}
+.meter .m{width:50px;height:5px;border-radius:3px;background:rgba(255,255,255,0.06)}
+.cost-foot{margin-top:14px;padding:8px 10px;border-radius:8px;font-size:11.5px;font-weight:700}
+.c-api{border-color:rgba(34,197,94,0.4)}.c-api h4{color:#22c55e}.c-api .cost-foot{background:rgba(34,197,94,0.1);color:#22c55e}.c-api .m.on{background:#22c55e}
+.c-wf{border-color:rgba(59,130,246,0.4)}.c-wf h4{color:#60a5fa}.c-wf .cost-foot{background:rgba(59,130,246,0.1);color:#60a5fa}.c-wf .m.on{background:#3b82f6}
+.c-ag{border-color:rgba(245,158,11,0.4)}.c-ag h4{color:#f59e0b}.c-ag .cost-foot{background:rgba(245,158,11,0.1);color:#f59e0b}.c-ag .m.on{background:#f59e0b}
+
+/* ── ANTI-PATTERNS ── */
+.anti{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px}
+.anti-card{background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px}
+.anti-card h4{color:#f87171;font-size:12px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.anti-card p{font-size:11px;color:#8090b0;line-height:1.5}
+.anti-card .fix{margin-top:8px;font-size:11px;color:#22c55e;font-weight:600}
+
+/* ── DECISION TREE ── */
+.tree{background:rgba(10,18,40,0.5);border:1px solid rgba(242,200,17,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:6px}
+.tree h3{color:#f2c811;font-size:14px;margin-bottom:16px;letter-spacing:1px}
+.tree-flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.tree-q{background:rgba(242,200,17,0.08);border:1px solid rgba(242,200,17,0.2);border-radius:8px;padding:10px 20px;font-size:12px;color:#e0e4ec;max-width:500px}
+.tree-arr{color:#f2c811;font-size:18px;line-height:1}
+.tree-split{display:flex;gap:40px;margin:6px 0}
+.tree-ans{font-size:11px;padding:8px 16px;border-radius:8px;font-weight:700}
+.tree-yes{background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.3)}
+.tree-no{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.3)}
+.tree-maybe{background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}
+
+/* ── FOOTER ── */
+.footer{text-align:center;margin-top:50px;padding:24px;border-top:1px solid rgba(255,255,255,0.06)}
+.footer .q{font-style:italic;color:#8090b0;font-size:14px;margin-bottom:6px}
+.footer .q b{color:#f2c811}
+.footer .by{font-size:11px;color:#4a5568;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">Advanced Edition · Observability Architecture</div>
+  <h1>When to <b>NOT</b> Use an AI Agent</h1>
+  <p class="sub">A Practitioner's Decision Framework for the LGTM+P Observability Stack</p>
+  <p class="author">by Gopal Rao · eSOB Platform · Grafana · Mimir · Loki · Tempo · Pyroscope</p>
+</div>
+
+<!-- DECISION MATRIX -->
+<div class="divider"><span>THE DECISION MATRIX</span></div>
+<table class="matrix">
+<thead><tr><th>Criteria</th><th>API Call / Script <span class="pill pill-green">60%</span></th><th>Workflow + LLM <span class="pill pill-blue">30%</span></th><th>Autonomous Agent <span class="pill pill-amber">10%</span></th></tr></thead>
+<tbody>
+<tr><td><span class="row-icon">🎯</span>Goal Clarity</td><td>Fully defined<small>GET /api/health, PromQL query</small></td><td>Defined with variation<small>"Triage this P2 alert"</small></td><td>Ambiguous or evolving<small>"Why is tail latency spiking?"</small></td></tr>
+<tr><td><span class="row-icon">🔀</span>Path Predictability</td><td>Single deterministic path<small>Same steps every time</small></td><td>Multi-step, known sequence<small>Check → Query → Notify</small></td><td>Dynamic, model decides<small>Mimir or Loki? Depends on signal</small></td></tr>
+<tr><td><span class="row-icon">🔧</span>Tool Selection</td><td>Hardcoded<small>curl, grafana-cli, promtool</small></td><td>Pre-configured per step<small>Grafana API → Loki → Slack</small></td><td>Model chooses at runtime<small>TraceQL vs LogQL vs PromQL</small></td></tr>
+<tr><td><span class="row-icon">⚠️</span>Error Handling</td><td>Try/catch, retry logic<small>Exponential backoff</small></td><td>Step-level fallback + alerts<small>Circuit breaker per stage</small></td><td>Self-correction or re-planning<small>Retry with different backend</small></td></tr>
+<tr><td><span class="row-icon">💾</span>State Mgmt</td><td>Stateless or key-value<small>No memory between runs</small></td><td>Workflow state machine<small>DAG with checkpoints</small></td><td>Persistent memory + context<small>Remembers prior investigations</small></td></tr>
+<tr><td><span class="row-icon">👤</span>Human Oversight</td><td>Not needed<small>Automated, fire-and-forget</small></td><td>Human-in-the-loop<small>Approve before escalation</small></td><td>Human-on-the-loop<small>Async review of agent actions</small></td></tr>
+<tr><td><span class="row-icon">🔒</span>Blast Radius</td><td>None — read-only<small>No mutations possible</small></td><td>Contained — scoped writes<small>Can create tickets, send alerts</small></td><td>Wide — may take action<small>Could restart pods, scale infra</small></td></tr>
+</tbody>
+</table>
+
+<!-- O11Y SIGNAL FLOW -->
+<div class="divider"><span>O11Y SIGNAL DECISION FLOW</span></div>
+<div class="signal-flow">
+  <div class="signal-node"><h4>METRICS</h4><p>Mimir / Prom</p></div>
+  <div class="signal-arrow">→</div>
+  <div class="signal-node"><h4>LOGS</h4><p>Loki / LogQL</p></div>
+  <div class="signal-arrow">→</div>
+  <div class="signal-node"><h4>TRACES</h4><p>Tempo / TraceQL</p></div>
+  <div class="signal-arrow">→</div>
+  <div class="signal-node"><h4>PROFILES</h4><p>Pyroscope</p></div>
+  <div class="signal-arrow">→</div>
+  <div class="signal-node active"><h4>CORRELATE</h4><p>Agent territory</p></div>
+</div>
+<p style="text-align:center;font-size:11px;color:#5a6a8a;margin-bottom:20px">Querying one signal = script. Chaining signals in sequence = workflow. Deciding which signal to query based on results = agent.</p>
+
+<!-- USE CASES -->
+<div class="divider"><span>REAL-WORLD O11Y USE CASE MAPPING</span></div>
+<div class="cards">
+  <div class="card card-g"><span class="pct">60%</span>
+    <h3>🟢 Deterministic</h3>
+    <ul>
+      <li>Grafana health check (GET /api/health)</li>
+      <li>Dashboard JSON export/import</li>
+      <li>Plugin version audit + signing check</li>
+      <li>Datasource connectivity test</li>
+      <li>Alert rule provisioning from YAML</li>
+      <li>PromQL / LogQL query execution</li>
+      <li>Mimir compactor / ingester metrics scrape</li>
+      <li>Certificate expiry check</li>
+    </ul>
+  </div>
+  <div class="card card-b"><span class="pct">30%</span>
+    <h3>🔵 Orchestrated</h3>
+    <ul>
+      <li>Alert triage → Loki logs → Slack notify</li>
+      <li>Grafana upgrade validation (pre/post diff)</li>
+      <li>Datasource health → query test → report</li>
+      <li>SLO burn rate check → PagerDuty escalation</li>
+      <li>Dashboard snapshot compare across envs</li>
+      <li>Loki SaaS → OSS migration validation</li>
+      <li>Plugin Angular → React migration scan</li>
+    </ul>
+  </div>
+  <div class="card card-r"><span class="pct">10%</span>
+    <h3>🔴 Autonomous</h3>
+    <ul>
+      <li>Cross-signal root cause (Mimir + Loki + Tempo)</li>
+      <li>"Why is this dashboard slow?" investigation</li>
+      <li>Cross-env drift detection + remediation</li>
+      <li>Capacity planning with cost optimization</li>
+      <li>Natural language → PromQL/LogQL generation</li>
+      <li>Incident postmortem assembly from signals</li>
+      <li>Anomaly-driven auto-investigation</li>
+    </ul>
+  </div>
+</div>
+
+<!-- OVER-ENGINEERING TEST -->
+<div class="divider"><span>THE OVER-ENGINEERING TEST</span></div>
+<div class="tests">
+  <div class="tq"><div class="tq-n">1</div><div class="tq-q">Does your O11y task always follow the <b>same sequence</b> of API calls?</div><div class="tq-a">You built a <b>runbook script.</b></div></div>
+  <div class="tq"><div class="tq-n">2</div><div class="tq-q">Does it always call the <b>same Grafana / Mimir / Loki API</b>?</div><div class="tq-a">You built an <b>API wrapper.</b></div></div>
+  <div class="tq"><div class="tq-n">3</div><div class="tq-q">Does it need to <b>decide which backend</b> (Mimir vs Loki vs Tempo) to query?</div><div class="tq-a">Now you <b>might need an agent.</b></div></div>
+  <div class="tq"><div class="tq-n">4</div><div class="tq-q">Can an SRE define the <b>exact investigation steps</b> in advance?</div><div class="tq-a"><b>Workflow, not agent.</b></div></div>
+  <div class="tq"><div class="tq-n">5</div><div class="tq-q">Does the investigation path <b>change based on intermediate results</b>?</div><div class="tq-a"><b>Agent territory.</b></div></div>
+  <div class="tq"><div class="tq-n">6</div><div class="tq-q">Could a wrong agent action <b>cause a production incident</b>?</div><div class="tq-a"><b>Human-in-the-loop required.</b></div></div>
+  <div class="tq"><div class="tq-n">7</div><div class="tq-q">Does the task require <b>correlating 3+ signal types</b> (metrics + logs + traces)?</div><div class="tq-a"><b>Agent adds real value here.</b></div></div>
+</div>
+
+<!-- SPECTRUM BAR -->
+<div class="spectrum">
+  <h3>THE AUTOMATION SPECTRUM FOR O11Y</h3>
+  <div class="sbar">
+    <div class="s-api">60% · API/Script</div>
+    <div class="s-wf">30% · Workflow</div>
+    <div class="s-ag">10%</div>
+  </div>
+  <div class="slegend">
+    <span><span class="dot" style="background:#22c55e"></span> Health checks, provisioning, exports, queries</span>
+    <span><span class="dot" style="background:#3b82f6"></span> Alert triage, upgrade validation, SLO</span>
+    <span><span class="dot" style="background:#f59e0b"></span> Root cause, investigation</span>
+  </div>
+</div>
+
+<!-- ANTI-PATTERNS -->
+<div class="divider"><span>O11Y AGENT ANTI-PATTERNS</span></div>
+<div class="anti">
+  <div class="anti-card">
+    <h4>🚫 The Dashboard Reloader</h4>
+    <p>Using an agent to refresh Grafana dashboards on a schedule. This is a cron job, not an agent.</p>
+    <div class="fix">Fix: Use Grafana's built-in auto-refresh or a simple script.</div>
+  </div>
+  <div class="anti-card">
+    <h4>🚫 The PromQL Parrot</h4>
+    <p>Agent that translates the same 5 natural language queries to PromQL every time. Same input → same output = deterministic.</p>
+    <div class="fix">Fix: Build a lookup table or parameterized template.</div>
+  </div>
+  <div class="anti-card">
+    <h4>🚫 The Alert Forwarder</h4>
+    <p>Agent receives Alertmanager webhook and posts to Slack with the same format every time. This is a webhook, not intelligence.</p>
+    <div class="fix">Fix: Use Alertmanager's native Slack receiver.</div>
+  </div>
+  <div class="anti-card">
+    <h4>🚫 The Config Copier</h4>
+    <p>Agent copies datasource configs from staging to prod. Same source, same target, same transform = a script.</p>
+    <div class="fix">Fix: Use Terraform or Grafana provisioning YAML.</div>
+  </div>
+</div>
+
+<!-- DECISION TREE -->
+<div class="divider"><span>QUICK DECISION TREE</span></div>
+<div class="tree">
+  <h3>Should I Use an Agent for This O11y Task?</h3>
+  <div class="tree-flow">
+    <div class="tree-q">Can I write the exact steps as a bash script?</div>
+    <div class="tree-arr">↓</div>
+    <div class="tree-split">
+      <div><div class="tree-ans tree-yes">YES → Use a script</div></div>
+      <div><div class="tree-ans tree-no">NO ↓</div></div>
+    </div>
+    <div class="tree-q">Are the steps known but need LLM for summarization or NL?</div>
+    <div class="tree-arr">↓</div>
+    <div class="tree-split">
+      <div><div class="tree-ans tree-maybe">YES → Workflow + LLM</div></div>
+      <div><div class="tree-ans tree-no">NO ↓</div></div>
+    </div>
+    <div class="tree-q">Does the next step depend on what the previous query reveals?</div>
+    <div class="tree-arr">↓</div>
+    <div class="tree-split">
+      <div><div class="tree-ans tree-no">NO → Still a workflow</div></div>
+      <div><div class="tree-ans" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">YES → Agent (with guardrails)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COST -->
+<div class="divider"><span>COST AND COMPLEXITY REALITY</span></div>
+<div class="costs">
+  <div class="cost c-api">
+    <h4>API Call / Script</h4>
+    <div class="cost-row"><b>Latency</b></div><div class="meter"><div class="m on"></div><div class="m"></div><div class="m"></div></div>
+    <div class="cost-row"><b>Token Cost: $</b></div><div class="meter"><div class="m on"></div><div class="m"></div><div class="m"></div></div>
+    <div class="cost-row"><b>Debug: Simple</b></div><div class="meter"><div class="m on"></div><div class="m"></div><div class="m"></div></div>
+    <div class="cost-row"><b>Reliability: 99.9%</b></div>
+    <div class="cost-foot">Use for 60% of O11y tasks</div>
+  </div>
+  <div class="cost c-wf">
+    <h4>Workflow + LLM</h4>
+    <div class="cost-row"><b>Latency</b></div><div class="meter"><div class="m"></div><div class="m on"></div><div class="m"></div></div>
+    <div class="cost-row"><b>Token Cost: $$</b></div><div class="meter"><div class="m"></div><div class="m on"></div><div class="m"></div></div>
+    <div class="cost-row"><b>Debug: Moderate</b></div><div class="meter"><div class="m"></div><div class="m on"></div><div class="m"></div></div>
+    <div class="cost-row"><b>Reliability: 99.5%</b></div>
+    <div class="cost-foot">Use for 30% of O11y tasks</div>
+  </div>
+  <div class="cost c-ag">
+    <h4>Autonomous Agent</h4>
+    <div class="cost-row"><b>Latency</b></div><div class="meter"><div class="m"></div><div class="m"></div><div class="m on"></div></div>
+    <div class="cost-row"><b>Token Cost: $$$$</b></div><div class="meter"><div class="m"></div><div class="m"></div><div class="m on"></div></div>
+    <div class="cost-row"><b>Debug: Painful</b></div><div class="meter"><div class="m"></div><div class="m"></div><div class="m on"></div></div>
+    <div class="cost-row"><b>Reliability: 95-99%</b></div>
+    <div class="cost-foot">Reserve for 10% that need autonomy</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p class="q">"The best O11y architects don't ask <b>'where can I use agents?'</b> — they ask<br><b>'where is deterministic automation no longer sufficient?'</b>"</p>
+  <p class="by">by Gopal Rao · eSOB Observability Platform · Grafana LGTM+P Stack</p>
+</div>
+
+</div>
+</body>
+</html>
