@@ -7,8 +7,9 @@ const fs = require('fs');
   fs.mkdirSync(outDir, { recursive: true });
 
   const browser = await chromium.launch();
+  // The poster is a fixed 1400x950 canvas; give the viewport some breathing room.
   const page = await browser.newPage({
-    viewport: { width: 1040, height: 900 },
+    viewport: { width: 1440, height: 990 },
     deviceScaleFactor: 2,
   });
 
@@ -16,16 +17,16 @@ const fs = require('fs');
   await page.goto(url, { waitUntil: 'networkidle' });
   await page.waitForTimeout(500);
 
-  // Full page
+  // Full poster
   await page.screenshot({ path: path.join(outDir, 'vs-00-full-page.png'), fullPage: true });
 
   const shots = [
-    { file: 'vs-hero.png', sel: '.hero' },
-    { file: 'vs-comparison.png', sel: '.comparison' },
-    { file: 'vs-o11y-panel.png', sel: '.panel-o11y' },
-    { file: 'vs-aiops-panel.png', sel: '.panel-aiops' },
-    { file: 'vs-bridge.png', sel: '.bridge-section' },
-    { file: 'vs-future-pipeline.png', sel: '.future-section' },
+    { file: 'vs-hero.png', sel: '.header-row' },
+    { file: 'vs-bestfor.png', sel: '.bestfor-row' },
+    { file: 'vs-bridge.png', sel: '.bridge-center' },
+    { file: 'vs-strengths.png', sel: '.strengths-row' },
+    { file: 'vs-pipeline.png', sel: '.pipeline-center' },
+    { file: 'vs-future-pipeline.png', sel: '.future-row' },
     { file: 'vs-footer.png', sel: '.footer' },
   ];
 

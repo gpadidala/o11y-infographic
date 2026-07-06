@@ -24,20 +24,20 @@ bridge between them delivers *Intelligent Operations*: Observe → Correlate →
 It closes with a 7-step future-architecture pipeline showing how the two combine
 end to end.
 
-### Hero
+### Hero — O11y vs AIOps, side by side
 ![O11y vs AIOps — Hero](screenshots/vs-hero.png)
 
-### The Comparison — O11y vs AIOps, side by side
-![Comparison](screenshots/vs-comparison.png)
+### Best For — where each approach shines, bridged in the middle
+![Best For + Bridge](screenshots/vs-bestfor.png)
 
-### O11y Panel — Observe & Understand
-![O11y Panel](screenshots/vs-o11y-panel.png)
-
-### AIOps Panel — Analyze & Automate
-![AIOps Panel](screenshots/vs-aiops-panel.png)
-
-### The Bridge — Connected Signals, Intelligent Action
+### The Bridge — Intelligent Operations: Observe · Correlate · Act
 ![Bridge](screenshots/vs-bridge.png)
+
+### Strengths — O11y and AIOps strengths around the shared pipeline
+![Strengths](screenshots/vs-strengths.png)
+
+### The Pipeline — Collect → Correlate → Analyze → Decide → Act
+![Pipeline Flow](screenshots/vs-pipeline.png)
 
 ### The Future Architecture — 7-Step Pipeline
 ![Future Architecture Pipeline](screenshots/vs-future-pipeline.png)
