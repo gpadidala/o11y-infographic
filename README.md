@@ -1,7 +1,7 @@
 # When to *NOT* Use an AI Agent in Observability
 
 > **A Practitioner's Decision Framework for the LGTM+P Observability Stack**
-> by **Gopal Rao** · eSOB Observability Platform · Grafana · Mimir · Loki · Tempo · Pyroscope
+> by **Gopal Rao** · Grafana · Mimir · Loki · Tempo · Pyroscope
 
 A single-file, self-contained infographic that answers a question most "AI for Ops"
 content skips: **when should you *not* reach for an autonomous agent?**
@@ -80,7 +80,7 @@ Everything — layout, styling, and content — lives in a single `index.html`.
 - **Pure HTML + CSS** — no frameworks, no build tooling, no runtime dependencies.
 - **Inline `<style>`** — CSS grid/flexbox layout, gradient backgrounds, self-contained.
 - **Zero JavaScript** for the infographic itself — it's fully static and portable.
-- **Dark navy gradient theme** with gold (`#f2c811`) accents, matched to the eSOB
+- **Dark navy gradient theme** with gold (`#f2c811`) accents, matched to the
   observability brand.
 
 Screenshots in this README are generated with [Playwright](https://playwright.dev/)
@@ -98,7 +98,7 @@ node shoot.js            # writes PNGs into screenshots/
 
 ## Attribution
 
-Created by **Gopal Rao** for the eSOB Observability Platform, built on the Grafana
+Created by **Gopal Rao**, built on the Grafana
 **LGTM+P** stack (Loki · Grafana · Tempo · Mimir · Pyroscope).
 
 > *"The best O11y architects don't ask 'where can I use agents?' — they ask
